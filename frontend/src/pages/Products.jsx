@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { useCart } from '../contexts/CartContext';
-import { ShoppingCart, Search, Loader, Package } from 'lucide-react';
+import { ShoppingCart, Search, Loader, Package, ImageOff } from 'lucide-react';
 
 export default function Products() {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const { addToCart } = useCart();
   const [searchTerm, setSearchTerm] = useState('');
+  const [imageErrors, setImageErrors] = useState({});
 
   useEffect(() => {
     fetchProducts();
@@ -22,6 +23,33 @@ export default function Products() {
       console.error('Error fetching products:', error);
       setLoading(false);
     }
+  };
+
+  const handleImageError = (productId) => {
+    setImageErrors(prev => ({
+      ...prev,
+      [productId]: true
+    }));
+  };
+
+  const renderProductImage = (product) => {
+    // If there's an error loading the image or no imageUrl
+    if (imageErrors[product._id] || !product.imageUrl) {
+      return (
+        <div className="w-full h-full flex items-center justify-center bg-gray-800">
+          <ImageOff className="w-12 h-12 text-gray-600" />
+        </div>
+      );
+    }
+
+    return (
+      <img
+        src={product.imageUrl}
+        alt={product.name}
+        onError={() => handleImageError(product._id)}
+        className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+      />
+    );
   };
 
   if (loading) {
@@ -83,11 +111,7 @@ export default function Products() {
                 className="group bg-gray-800 rounded-2xl overflow-hidden border border-gray-700/50 hover:border-blue-500/50 transition-all duration-300"
               >
                 <div className="relative aspect-square overflow-hidden bg-gray-900">
-                  <img
-                    src="/api/placeholder/400/400"
-                    alt={product.name}
-                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-                  />
+                  {renderProductImage(product)}
                   <div className="absolute inset-0 bg-gradient-to-t from-gray-900 via-gray-900/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                 </div>
                 
