@@ -9,6 +9,7 @@ import Cart from './pages/Cart';
 import { CartProvider } from './contexts/CartContext';
 import { AuthProvider } from './contexts/AuthContext';
 import ProductAdmin from './components/ProductAdmin';
+import Profile from './components/Profile';
 
 function App() {
   return (
@@ -21,6 +22,7 @@ function App() {
               <Routes>
                 <Route path="/" element={<Home />} />
                 <Route path="/products" element={<Products />} />
+                <Route path="/profile" element={<Profile />} />
                 <Route path="/login" element={<Login />} />
                 <Route path="/register" element={<Register />} />
                 <Route path="/admin/products" element={<ProductAdmin />} />

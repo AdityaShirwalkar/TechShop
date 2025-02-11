@@ -1,8 +1,11 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { ShoppingBag, ArrowRight } from 'lucide-react';
+import { useAuth } from '../contexts/AuthContext';
 
 function Home() {
+  const { user } = useAuth();
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 py-16 px-4">
       <div className="max-w-4xl mx-auto text-center">
@@ -23,12 +26,14 @@ function Home() {
             Browse Products
             <ArrowRight className="h-5 w-5 group-hover:translate-x-1 transition-transform" />
           </Link>
-          <Link
-            to="/register"
-            className="flex items-center gap-2 bg-white text-blue-600 px-8 py-4 rounded-full hover:bg-gray-50 transition-all duration-300 shadow-lg hover:shadow-xl"
-          >
-            Sign Up Now
-          </Link>
+          {!user && (
+            <Link
+              to="/register"
+              className="flex items-center gap-2 bg-white text-blue-600 px-8 py-4 rounded-full hover:bg-gray-50 transition-all duration-300 shadow-lg hover:shadow-xl"
+            >
+              Sign Up Now
+            </Link>
+          )}
         </div>
       </div>
     </div>

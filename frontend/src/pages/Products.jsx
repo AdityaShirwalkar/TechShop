@@ -32,9 +32,15 @@ export default function Products() {
     }));
   };
 
+  const getImageUrl = (imageUrl) => {
+    if (!imageUrl) return null;
+    if (imageUrl.startsWith('http')) return imageUrl;
+    return `http://localhost:5000${imageUrl}`;
+  };
+
   const renderProductImage = (product) => {
-    // If there's an error loading the image or no imageUrl
-    if (imageErrors[product._id] || !product.imageUrl) {
+    const imageUrl = getImageUrl(product.imageUrl);
+    if (imageErrors[product._id] || !imageUrl) {
       return (
         <div className="w-full h-full flex items-center justify-center bg-gray-800">
           <ImageOff className="w-12 h-12 text-gray-600" />
@@ -44,7 +50,7 @@ export default function Products() {
 
     return (
       <img
-        src={product.imageUrl}
+        src={imageUrl}
         alt={product.name}
         onError={() => handleImageError(product._id)}
         className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
