@@ -8,6 +8,7 @@ import Register from './pages/Register';
 import Cart from './pages/Cart';
 import { CartProvider } from './contexts/CartContext';
 import { AuthProvider } from './contexts/AuthContext';
+import ProductAdmin from './components/ProductAdmin';
 
 function App() {
   return (
@@ -22,6 +23,7 @@ function App() {
                 <Route path="/products" element={<Products />} />
                 <Route path="/login" element={<Login />} />
                 <Route path="/register" element={<Register />} />
+                <Route path="/admin/products" element={<ProductAdmin />} />
                 <Route path="/cart" element={<Cart />} />
               </Routes>
             </div>
