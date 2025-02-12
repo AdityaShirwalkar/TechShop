@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { Lock, User, Save, AlertCircle, Loader } from 'lucide-react';
 
+const API_BASE_URL = 'http://localhost:5000'; // Add this constant for the API base URL
+
 export default function Profile() {
   const { user, updateUserData } = useAuth();
   const [newUsername, setNewUsername] = useState('');
@@ -12,14 +14,58 @@ export default function Profile() {
   const [success, setSuccess] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
-  const handleUsernameUpdate = async (e) => {
-    e.preventDefault();
+  const validateUsername = (username) => {
+    if (username.length < 3) {
+      throw new Error('Username must be at least 3 characters long');
+    }
+    if (username.length > 30) {
+      throw new Error('Username cannot exceed 30 characters');
+    }
+    if (!/^[a-zA-Z0-9_]+$/.test(username)) {
+      throw new Error('Username can only contain letters, numbers, and underscores');
+    }
+  };
+
+  const validatePassword = (password) => {
+    if (password.length < 6) {
+      throw new Error('Password must be at least 6 characters long');
+    }
+    if (password.length > 50) {
+      throw new Error('Password cannot exceed 50 characters');
+    }
+    if (!/[A-Z]/.test(password)) {
+      throw new Error('Password must contain at least one uppercase letter');
+    }
+    if (!/[a-z]/.test(password)) {
+      throw new Error('Password must contain at least one lowercase letter');
+    }
+    if (!/[0-9]/.test(password)) {
+      throw new Error('Password must contain at least one number');
+    }
+  };
+
+  const clearMessages = () => {
     setError('');
     setSuccess('');
+  };
+
+  const handleUsernameUpdate = async (e) => {
+    e.preventDefault();
+    clearMessages();
     setIsLoading(true);
 
     try {
-      const response = await fetch(`/api/users/${user._id}/username`, {
+      if (!newUsername.trim()) {
+        throw new Error('Please enter a new username');
+      }
+
+      if (newUsername === user.username) {
+        throw new Error('New username must be different from current username');
+      }
+
+      validateUsername(newUsername);
+
+      const response = await fetch(`${API_BASE_URL}/api/users/${user._id}/username`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -45,20 +91,33 @@ export default function Profile() {
 
   const handlePasswordUpdate = async (e) => {
     e.preventDefault();
-    setError('');
-    setSuccess('');
-
-    if (newPassword !== confirmNewPassword) {
-      return setError('New passwords do not match');
-    }
-
-    if (newPassword.length < 6) {
-      return setError('Password must be at least 6 characters long');
-    }
-
+    clearMessages();
     setIsLoading(true);
+
     try {
-      const response = await fetch(`/api/users/${user._id}/password`, {
+      if (!currentPassword) {
+        throw new Error('Please enter your current password');
+      }
+
+      if (!newPassword) {
+        throw new Error('Please enter a new password');
+      }
+
+      if (!confirmNewPassword) {
+        throw new Error('Please confirm your new password');
+      }
+
+      if (newPassword !== confirmNewPassword) {
+        throw new Error('New passwords do not match');
+      }
+
+      if (currentPassword === newPassword) {
+        throw new Error('New password must be different from current password');
+      }
+
+      validatePassword(newPassword);
+
+      const response = await fetch(`${API_BASE_URL}/api/users/${user._id}/password`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -86,6 +145,7 @@ export default function Profile() {
     }
   };
 
+  // Rest of the component remains the same
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 to-gray-800 py-16 px-4">
       <div className="max-w-2xl mx-auto space-y-8">
@@ -129,9 +189,12 @@ export default function Profile() {
               <input
                 type="text"
                 value={newUsername}
-                onChange={(e) => setNewUsername(e.target.value)}
+                onChange={(e) => {
+                  setNewUsername(e.target.value);
+                  clearMessages();
+                }}
                 className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg text-white placeholder-gray-500 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
-                placeholder="Enter new username"
+                placeholder="Enter new username (3-30 characters, letters, numbers, underscore)"
                 required
                 minLength={3}
                 maxLength={30}
@@ -167,7 +230,10 @@ export default function Profile() {
               <input
                 type="password"
                 value={currentPassword}
-                onChange={(e) => setCurrentPassword(e.target.value)}
+                onChange={(e) => {
+                  setCurrentPassword(e.target.value);
+                  clearMessages();
+                }}
                 className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg text-white placeholder-gray-500 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
                 placeholder="Enter current password"
                 required
@@ -180,9 +246,12 @@ export default function Profile() {
               <input
                 type="password"
                 value={newPassword}
-                onChange={(e) => setNewPassword(e.target.value)}
+                onChange={(e) => {
+                  setNewPassword(e.target.value);
+                  clearMessages();
+                }}
                 className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg text-white placeholder-gray-500 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
-                placeholder="Enter new password"
+                placeholder="Enter new password (min 6 chars, 1 uppercase, 1 lowercase, 1 number)"
                 required
                 minLength={6}
               />
@@ -194,7 +263,10 @@ export default function Profile() {
               <input
                 type="password"
                 value={confirmNewPassword}
-                onChange={(e) => setConfirmNewPassword(e.target.value)}
+                onChange={(e) => {
+                  setConfirmNewPassword(e.target.value);
+                  clearMessages();
+                }}
                 className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg text-white placeholder-gray-500 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
                 placeholder="Confirm new password"
                 required

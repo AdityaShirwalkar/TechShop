@@ -74,6 +74,23 @@ export default function Register() {
 
             <div>
               <label className="text-sm font-medium text-gray-300 mb-2 block">
+                Email
+              </label>
+              <div className="relative">
+                <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
+                <input
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="w-full pl-10 pr-4 py-3 bg-white/5 border border-white/10 rounded-lg text-white placeholder-gray-500 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
+                  placeholder="Enter your email"
+                  required
+                />
+              </div>
+            </div>
+
+            <div>
+              <label className="text-sm font-medium text-gray-300 mb-2 block">
                 Password
               </label>
               <div className="relative">
