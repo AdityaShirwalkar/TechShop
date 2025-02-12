@@ -3,7 +3,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { Lock, User, Save, AlertCircle, Loader } from 'lucide-react';
 
 export default function Profile() {
-  const { user, updatePassword, updateUsername } = useAuth();
+  const { user, updateUserData } = useAuth();
   const [newUsername, setNewUsername] = useState('');
   const [currentPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
@@ -19,11 +19,25 @@ export default function Profile() {
     setIsLoading(true);
 
     try {
-      await updateUsername(newUsername);
+      const response = await fetch(`/api/users/${user._id}/username`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ username: newUsername }),
+      });
+
+      const data = await response.json();
+      
+      if (!response.ok) {
+        throw new Error(data.message || 'Failed to update username');
+      }
+
+      updateUserData({ ...user, username: data.username });
       setSuccess('Username updated successfully!');
       setNewUsername('');
     } catch (err) {
-      setError('Failed to update username');
+      setError(err.message);
     } finally {
       setIsLoading(false);
     }
@@ -38,15 +52,35 @@ export default function Profile() {
       return setError('New passwords do not match');
     }
 
+    if (newPassword.length < 6) {
+      return setError('Password must be at least 6 characters long');
+    }
+
     setIsLoading(true);
     try {
-      await updatePassword(currentPassword, newPassword);
+      const response = await fetch(`/api/users/${user._id}/password`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          currentPassword,
+          newPassword,
+        }),
+      });
+
+      const data = await response.json();
+      
+      if (!response.ok) {
+        throw new Error(data.message || 'Failed to update password');
+      }
+
       setSuccess('Password updated successfully!');
       setCurrentPassword('');
       setNewPassword('');
       setConfirmNewPassword('');
     } catch (err) {
-      setError('Failed to update password');
+      setError(err.message);
     } finally {
       setIsLoading(false);
     }
@@ -85,7 +119,7 @@ export default function Profile() {
                 Current Username
               </label>
               <div className="px-4 py-3 bg-white/5 border border-white/10 rounded-lg text-gray-400">
-                {user?.email.split('@')[0]}
+                {user?.username || user?.email.split('@')[0]}
               </div>
             </div>
             <div>
@@ -99,12 +133,14 @@ export default function Profile() {
                 className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg text-white placeholder-gray-500 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
                 placeholder="Enter new username"
                 required
+                minLength={3}
+                maxLength={30}
               />
             </div>
             <button
               type="submit"
               disabled={isLoading}
-              className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 text-white py-3 px-4 rounded-lg hover:from-blue-700 hover:to-indigo-700 transition-all duration-300 flex items-center justify-center gap-2"
+              className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 text-white py-3 px-4 rounded-lg hover:from-blue-700 hover:to-indigo-700 transition-all duration-300 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {isLoading ? (
                 <Loader className="animate-spin h-5 w-5" />
@@ -148,6 +184,7 @@ export default function Profile() {
                 className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg text-white placeholder-gray-500 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
                 placeholder="Enter new password"
                 required
+                minLength={6}
               />
             </div>
             <div>
@@ -161,12 +198,13 @@ export default function Profile() {
                 className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg text-white placeholder-gray-500 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
                 placeholder="Confirm new password"
                 required
+                minLength={6}
               />
             </div>
             <button
               type="submit"
               disabled={isLoading}
-              className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 text-white py-3 px-4 rounded-lg hover:from-blue-700 hover:to-indigo-700 transition-all duration-300 flex items-center justify-center gap-2"
+              className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 text-white py-3 px-4 rounded-lg hover:from-blue-700 hover:to-indigo-700 transition-all duration-300 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {isLoading ? (
                 <Loader className="animate-spin h-5 w-5" />

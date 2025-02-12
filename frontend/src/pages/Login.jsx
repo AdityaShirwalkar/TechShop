@@ -15,15 +15,12 @@ export default function Login() {
     e.preventDefault();
     setError('');
     setIsLoading(true);
+    
     try {
-      const success = await login(email, password);
-      if (success) {
-        navigate('/products');
-      } else {
-        setError('Invalid email or password');
-      }
+      await login(email, password);
+      navigate('/products');
     } catch (err) {
-      setError('An error occurred during login');
+      setError(err.message || 'Invalid email or password');
     } finally {
       setIsLoading(false);
     }

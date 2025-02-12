@@ -1,36 +1,37 @@
-import React, { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
-import { useAuth } from '../contexts/AuthContext';
-import { Mail, Lock, Loader, ArrowRight } from 'lucide-react';
+import React, { useState } from "react";
+import { useNavigate, Link } from "react-router-dom";
+import { useAuth } from "../contexts/AuthContext";
+import { Mail, Lock, User, Loader, ArrowRight } from "lucide-react";
 
 export default function Register() {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
+  const [email, setEmail] = useState("");
+  const [username, setUsername] = useState(""); // Add username state
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
   const { register } = useAuth();
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError('');
+    setError("");
 
     if (password !== confirmPassword) {
-      setError('Passwords do not match');
+      setError("Passwords do not match");
       return;
     }
 
     setIsLoading(true);
     try {
-      const success = await register(email, password);
+      const success = await register(email, username, password); // Include username
       if (success) {
-        navigate('/products');
+        navigate("/products");
       } else {
-        setError('Failed to create account');
+        setError("Failed to create account");
       }
     } catch (err) {
-      setError('An error occurred during registration');
+      setError(err.message || "An error occurred during registration");
     } finally {
       setIsLoading(false);
     }
@@ -41,7 +42,9 @@ export default function Register() {
       <div className="max-w-md mx-auto">
         <div className="bg-white/5 backdrop-blur-xl rounded-2xl shadow-xl p-8 border border-white/10">
           <div className="mb-8 text-center">
-            <h2 className="text-3xl font-bold text-white mb-2">Create Account</h2>
+            <h2 className="text-3xl font-bold text-white mb-2">
+              Create Account
+            </h2>
             <p className="text-gray-400">Join us to start shopping</p>
           </div>
 
@@ -53,22 +56,26 @@ export default function Register() {
 
           <form onSubmit={handleSubmit} className="space-y-6">
             <div>
-              <label className="text-sm font-medium text-gray-300 mb-2 block">Email</label>
+              <label className="text-sm font-medium text-gray-300 mb-2 block">
+                Username
+              </label>
               <div className="relative">
-                <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
+                <User className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
                 <input
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
+                  type="text"
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value)}
                   className="w-full pl-10 pr-4 py-3 bg-white/5 border border-white/10 rounded-lg text-white placeholder-gray-500 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
-                  placeholder="Enter your email"
+                  placeholder="Choose a username"
                   required
                 />
               </div>
             </div>
 
             <div>
-              <label className="text-sm font-medium text-gray-300 mb-2 block">Password</label>
+              <label className="text-sm font-medium text-gray-300 mb-2 block">
+                Password
+              </label>
               <div className="relative">
                 <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
                 <input
@@ -83,7 +90,9 @@ export default function Register() {
             </div>
 
             <div>
-              <label className="text-sm font-medium text-gray-300 mb-2 block">Confirm Password</label>
+              <label className="text-sm font-medium text-gray-300 mb-2 block">
+                Confirm Password
+              </label>
               <div className="relative">
                 <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
                 <input
@@ -112,10 +121,10 @@ export default function Register() {
               )}
             </button>
           </form>
-          
+
           <div className="mt-6 text-center">
             <p className="text-gray-400">
-              Already have an account?{' '}
+              Already have an account?{" "}
               <Link
                 to="/login"
                 className="text-blue-400 hover:text-blue-300 font-medium"

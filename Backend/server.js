@@ -2,6 +2,7 @@ const express = require('express');
 const mongoose = require('mongoose');
 const path = require('path');
 const cors = require('cors');
+const bcrypt = require('bcryptjs');
 require('dotenv').config();
 const multer = require('multer');
 const app = express();
@@ -68,10 +69,31 @@ const productSchema = new mongoose.Schema({
 });
 
 const userSchema = new mongoose.Schema({
-  username:String,
-  email: String,
-  password: String,
-  role: { type: String, default: 'user' }
+  username: { 
+    type: String, 
+    unique: true,
+    required: true 
+  },
+  email: { 
+    type: String, 
+    required: true, 
+    unique: true 
+  },
+  password: { 
+    type: String, 
+    required: true 
+  },
+  role: { 
+    type: String, 
+    default: 'user' 
+  }
+});
+
+userSchema.pre('save', async function(next) {
+  if (this.isModified('password')) {
+    this.password = await bcrypt.hash(this.password, 10);
+  }
+  next();
 });
 
 const orderSchema = new mongoose.Schema({
@@ -113,6 +135,55 @@ app.post('/api/products', upload.single('image'), async (req, res) => {
   }
 });
 
+app.put('/api/users/:userId/username', async (req, res) => {
+  try {
+    const { username } = req.body;  
+    const existingUser = await User.findOne({ username });
+    if (existingUser && existingUser._id.toString() !== req.params.userId) {
+      return res.status(400).json({ message: 'Username already taken' });
+    }
+
+    const user = await User.findByIdAndUpdate(
+      req.params.userId,
+      { username },
+      { new: true }
+    );
+
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    res.json({ username: user.username });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
+// Update password
+app.put('/api/users/:userId/password', async (req, res) => {
+  try {
+    const { currentPassword, newPassword } = req.body;
+    const user = await User.findById(req.params.userId);
+
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    // Verify current password
+    const isValid = await bcrypt.compare(currentPassword, user.password);
+    if (!isValid) {
+      return res.status(401).json({ message: 'Current password is incorrect' });
+    }
+
+    user.password = newPassword; 
+    await user.save();
+
+    res.json({ message: 'Password updated successfully' });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
 app.put('/api/products/:id', upload.single('image'), async (req, res) => {
   try {
     const productData = { ...req.body };
@@ -143,14 +214,34 @@ app.post('/api/users/register', async (req, res) => {
 app.post('/api/users/login', async (req, res) => {
   try {
     const { email, password } = req.body;
-    const user = await User.findOne({ email, password });
-    if (user) {
-      res.json(user);
-    } else {
-      res.status(401).json({ message: 'Invalid credentials' });
+    
+    if (!email || !password) {
+      return res.status(400).json({ message: 'Email and password are required' });
     }
+
+    // Find by email
+    const user = await User.findOne({ email });
+    
+    if (!user) {
+      return res.status(401).json({ message: 'Invalid credentials' });
+    }
+
+    const isValidPassword = await bcrypt.compare(password, user.password);
+    
+    if (!isValidPassword) {
+      return res.status(401).json({ message: 'Invalid credentials' });
+    }
+    const userResponse = {
+      _id: user._id,
+      email: user.email,
+      username: user.username,
+      role: user.role
+    };
+
+    res.json(userResponse);
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    console.error('Login error:', error);
+    res.status(500).json({ message: 'Server error' });
   }
 });
 
