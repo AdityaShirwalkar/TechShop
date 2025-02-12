@@ -10,6 +10,10 @@ import { CartProvider } from './contexts/CartContext';
 import { AuthProvider } from './contexts/AuthContext';
 import ProductAdmin from './components/ProductAdmin';
 import Profile from './components/Profile';
+import About from './pages/About';
+import Contact from './pages/Contact';
+import FAQ from './pages/FAQ';
+import ScrollToTop from './components/ScrollToTop';  // Import the component
 
 function App() {
   return (
@@ -18,6 +22,7 @@ function App() {
         <CartProvider>
           <div className="min-h-screen w-full bg-slate-900">
             <Navbar />
+            <ScrollToTop />  {/* Add ScrollToTop here */}
             <div className="w-full">
               <Routes>
                 <Route path="/" element={<Home />} />
@@ -27,6 +32,9 @@ function App() {
                 <Route path="/register" element={<Register />} />
                 <Route path="/admin/products" element={<ProductAdmin />} />
                 <Route path="/cart" element={<Cart />} />
+                <Route path="/about" element={<About />} />
+                <Route path="/contact" element={<Contact />} />
+                <Route path="/faq" element={<FAQ />} />
               </Routes>
             </div>
           </div>

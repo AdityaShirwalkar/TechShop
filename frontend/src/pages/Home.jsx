@@ -1,10 +1,23 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { ShoppingBag, ArrowRight, Star, Shield, Truck, Clock, ChevronRight } from 'lucide-react';
+import { 
+  ShoppingBag, 
+  ArrowRight, 
+  Star, 
+  Shield, 
+  Truck, 
+  Clock, 
+  ChevronRight 
+} from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
+import Popup from '../components/Popup';
+import Footer from '../components/Footer';
 
 function Home() {
   const { user } = useAuth();
+  const [email, setEmail] = useState('');
+  const [emailError, setEmailError] = useState('');
+  const [isPopupOpen, setIsPopupOpen] = useState(false);
 
   const features = [
     {
@@ -35,6 +48,29 @@ function Home() {
     { name: "Accessories", count: "300+ products" },
     { name: "Gaming", count: "100+ products" }
   ];
+
+  const validateEmail = (email) => {
+    const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return re.test(email);
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    setEmailError('');
+
+    if (!email) {
+      setEmailError('Email is required');
+      return;
+    }
+
+    if (!validateEmail(email)) {
+      setEmailError('Please enter a valid email address');
+      return;
+    }
+
+    setIsPopupOpen(true);
+    setEmail('');
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
@@ -77,7 +113,10 @@ function Home() {
       <div className="max-w-7xl mx-auto px-4 py-16">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
           {features.map((feature, index) => (
-            <div key={index} className="bg-white/80 backdrop-blur-lg rounded-2xl p-6 shadow-lg hover:shadow-xl transition-all duration-300">
+            <div 
+              key={index} 
+              className="bg-white/80 backdrop-blur-lg rounded-2xl p-6 shadow-lg hover:shadow-xl transition-all duration-300"
+            >
               <div className="bg-gray-50 rounded-full w-12 h-12 flex items-center justify-center mb-4">
                 {feature.icon}
               </div>
@@ -119,12 +158,21 @@ function Home() {
           <p className="text-blue-100 mb-8 max-w-2xl mx-auto">
             Subscribe to our newsletter and get the latest updates on new products and exclusive offers.
           </p>
-          <form className="max-w-md mx-auto flex flex-col sm:flex-row gap-4">
-            <input
-              type="email"
-              placeholder="Enter your email"
-              className="flex-1 px-6 py-3 rounded-full focus:outline-none focus:ring-2 focus:ring-white/50 bg-indigo-400"
-            />
+          <form onSubmit={handleSubmit} className="max-w-md mx-auto flex flex-col sm:flex-row gap-4">
+            <div className="flex-1">
+              <input
+                type="email"
+                placeholder="Enter your email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className={`w-full px-6 py-3 rounded-full focus:outline-none focus:ring-2 focus:ring-white/50 bg-indigo-400 text-white placeholder-white/70 ${
+                  emailError ? 'border-2 border-red-500' : ''
+                }`}
+              />
+              {emailError && (
+                <p className="text-red-200 text-sm mt-2 text-left pl-4">{emailError}</p>
+              )}
+            </div>
             <button
               type="submit"
               className="bg-white text-blue-600 px-8 py-3 rounded-full hover:bg-blue-50 transition-colors duration-300"
@@ -134,6 +182,16 @@ function Home() {
           </form>
         </div>
       </div>
+
+      {/* Footer */}
+      <Footer />
+
+      {/* Popup */}
+      <Popup
+        isOpen={isPopupOpen}
+        onClose={() => setIsPopupOpen(false)}
+        message="Thank you for subscribing! You'll receive our latest updates in your inbox."
+      />
     </div>
   );
 }
