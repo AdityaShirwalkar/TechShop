@@ -1,6 +1,6 @@
 import React from 'react';
 import { useCart } from '../contexts/CartContext';
-import { Trash2, Plus, Minus, ShoppingBag, AlertCircle } from 'lucide-react';
+import { Trash2, Plus, Minus, ShoppingBag, AlertCircle, ImageOff } from 'lucide-react';
 
 function Cart() {
   const { cart, removeFromCart, updateQuantity } = useCart();
@@ -12,6 +12,41 @@ function Cart() {
     if (newQuantity > 0 && newQuantity <= item.stock) {
       updateQuantity(item._id, newQuantity);
     }
+  };
+
+  const getImageUrl = (imageUrl) => {
+    if (!imageUrl) return null;
+    if (imageUrl.startsWith('http')) return imageUrl;
+    return `http://localhost:5000${imageUrl}`;
+  };
+
+  const renderProductImage = (item) => {
+    const imageUrl = getImageUrl(item.imageUrl);
+    if (!imageUrl) {
+      return (
+        <div className="w-24 h-24 flex items-center justify-center bg-gray-800 rounded-lg">
+          <ImageOff className="w-8 h-8 text-gray-600" />
+        </div>
+      );
+    }
+
+    return (
+      <img
+        src={imageUrl}
+        alt={item.name}
+        className="w-24 h-24 object-cover rounded-lg"
+        onError={(e) => {
+          e.target.style.display = 'none';
+          e.target.parentElement.innerHTML = `
+            <div class="w-24 h-24 flex items-center justify-center bg-gray-800 rounded-lg">
+              <svg class="w-8 h-8 text-gray-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M13 4H7C5.89543 4 5 4.89543 5 6V20C5 21.1046 5.89543 22 7 22H17C18.1046 22 19 21.1046 19 20V10M13 4L19 10M13 4V10H19" />
+              </svg>
+            </div>
+          `;
+        }}
+      />
+    );
   };
 
   return (
@@ -39,13 +74,7 @@ function Cart() {
                     key={item._id}
                     className="flex items-center gap-6 p-4 bg-gray-700/50 rounded-xl border border-gray-600/50"
                   >
-                    {item.imageUrl && (
-                      <img
-                        src={item.imageUrl}
-                        alt={item.name}
-                        className="w-24 h-24 object-cover rounded-lg"
-                      />
-                    )}
+                    {renderProductImage(item)}
                     
                     <div className="flex-grow">
                       <h3 className="font-semibold text-white text-lg mb-1">

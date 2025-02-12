@@ -13,7 +13,7 @@ export default function Navbar() {
   const isAdmin = user?.role === 'admin';
   
   // Extract username from email (everything before @)
-  const username = user?.email ? user.email.split('@')[0] : '';
+  const username = user?.username ? user.username : '';
 
   const handleLogout = async () => {
     try {
