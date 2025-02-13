@@ -17,7 +17,7 @@ function About() {
         <div className="max-w-4xl mx-auto text-center">
           <h1 className="text-5xl font-bold text-gray-900 mb-6">About TechShop</h1>
           <p className="text-xl text-gray-600 mb-8">
-            Your trusted destination for quality tech products since 2014
+            Your trusted destination for quality tech products since 2024
           </p>
         </div>
       </div>
