@@ -11,18 +11,21 @@ export default function Navbar() {
 
   const cartItemsCount = cart.reduce((acc, item) => acc + item.quantity, 0);
   const isAdmin = user?.role === 'admin';
-  
-  // Extract username from email (everything before @)
   const username = user?.username ? user.username : '';
 
   const handleLogout = async () => {
     try {
       await logout();
-      // Redirect will be handled by the AuthContext
     } catch (error) {
       console.error('Failed to logout:', error);
     }
   };
+
+  // Simplified navigation links array
+  const navigationLinks = [
+    { to: "/products", label: "Products" },
+    { to: "/about", label: "About Us" },
+  ];
 
   return (
     <nav className="bg-white/5 backdrop-blur-lg border-b border-white/10 sticky top-0 z-50">
@@ -45,12 +48,15 @@ export default function Navbar() {
 
           {/* Desktop Navigation */}
           <div className="hidden sm:flex sm:items-center sm:space-x-8">
-            <Link 
-              to="/products" 
-              className="text-gray-300 hover:text-white px-4 py-2 text-sm font-medium rounded-lg hover:bg-white/5 transition-colors duration-200"
-            >
-              Products
-            </Link>
+            {navigationLinks.map((link) => (
+              <Link 
+                key={link.to}
+                to={link.to} 
+                className="text-gray-300 hover:text-white px-4 py-2 text-sm font-medium rounded-lg hover:bg-white/5 transition-colors duration-200"
+              >
+                {link.label}
+              </Link>
+            ))}
             
             {isAdmin && (
               <Link 
@@ -87,7 +93,7 @@ export default function Navbar() {
                   onClick={handleLogout}
                   className="flex items-center space-x-2 bg-gradient-to-r from-rose-500 to-pink-600 text-white px-4 py-2 rounded-lg hover:from-rose-600 hover:to-pink-700 transition-all duration-300"
                 >
-                  <LogOut className=" w-4 h-4" />
+                  <LogOut className="w-4 h-4" />
                   <span>Logout</span>
                 </button>
               </div>
@@ -125,12 +131,15 @@ export default function Navbar() {
       {isMobileMenuOpen && (
         <div className="sm:hidden bg-gray-900/90 backdrop-blur-lg border-t border-white/10">
           <div className="px-4 pt-2 pb-3 space-y-2">
-            <Link
-              to="/products"
-              className="block px-4 py-3 text-base font-medium text-gray-300 hover:text-white hover:bg-white/5 rounded-lg transition-colors duration-200"
-            >
-              Products
-            </Link>
+            {navigationLinks.map((link) => (
+              <Link
+                key={link.to}
+                to={link.to}
+                className="block px-4 py-3 text-base font-medium text-gray-300 hover:text-white hover:bg-white/5 rounded-lg transition-colors duration-200"
+              >
+                {link.label}
+              </Link>
+            ))}
             
             {isAdmin && (
               <Link
@@ -156,6 +165,7 @@ export default function Navbar() {
                 </span>
               )}
             </Link>
+            
             {user ? (
               <>
                 <div className="px-4 py-3">
@@ -165,7 +175,7 @@ export default function Navbar() {
                   )}
                 </div>
                 <button
-                  onClick={logout}
+                  onClick={handleLogout}
                   className="w-full flex items-center px-4 py-3 text-base font-medium text-rose-400 hover:text-rose-300 hover:bg-white/5 rounded-lg transition-colors duration-200"
                 >
                   <LogOut className="w-5 h-5 mr-3" />

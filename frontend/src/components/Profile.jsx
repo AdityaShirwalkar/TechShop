@@ -14,6 +14,13 @@ export default function Profile() {
   const [success, setSuccess] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
+  const scrollToTop = () => {
+    window.scrollTo({
+      top: 0,
+      behavior: "smooth"
+    });
+  };
+
   const validateUsername = (username) => {
     if (username.length < 3) {
       throw new Error('Username must be at least 3 characters long');
@@ -21,7 +28,7 @@ export default function Profile() {
     if (username.length > 30) {
       throw new Error('Username cannot exceed 30 characters');
     }
-    if (!/^[a-zA-Z0-9_]+$/.test(username)) {
+    if (!/^[a-zA-Z0-9_ ]+$/.test(username)) {
       throw new Error('Username can only contain letters, numbers, and underscores');
     }
   };
@@ -86,6 +93,7 @@ export default function Profile() {
       setError(err.message);
     } finally {
       setIsLoading(false);
+      scrollToTop();
     }
   };
 
@@ -142,10 +150,10 @@ export default function Profile() {
       setError(err.message);
     } finally {
       setIsLoading(false);
+      scrollToTop();
     }
   };
 
-  // Rest of the component remains the same
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 to-gray-800 py-16 px-4">
       <div className="max-w-2xl mx-auto space-y-8">
