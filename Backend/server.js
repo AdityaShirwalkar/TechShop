@@ -56,6 +56,7 @@ const productSchema = new mongoose.Schema({
   price: { type: Number, required: true },
   description: { type: String, required: true },
   category: { type: String, required: true },
+  type: { type: String, required: true, enum: ['gaming', 'accessories', 'smartphones', 'laptops'] },
   stock: { type: Number, required: true, default: 0 },
   imageUrl: { type: String },
   features: [String],
